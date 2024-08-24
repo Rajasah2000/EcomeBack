@@ -1,8 +1,13 @@
 const mongoose = require("mongoose");
+const { default: slugify } = require("slugify");
 
 var ProductSchema = new mongoose.Schema(
   {
-    title: {
+    categoryId:{
+      type:String,
+      require:true
+    },
+    name: {
       type: String,
       required: true,
       trim: true,
@@ -23,35 +28,35 @@ var ProductSchema = new mongoose.Schema(
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
+      ref: 'Category',
     },
     quantity: {
       type: Number,
     },
-    sold: {
-      type: Number,
-      default: 0,
-    },
+
     images: {
-      type: Array,
-    },
-    color: {
       type: String,
-      enum: ["black", "brown", "red"],
+      required: true,
     },
-    ratings: [
-      {
-        star: Number,
-        postedby: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-      },
-    ],
+
+    ratings: {
+      type: Number,
+      requierd: true,
+    },
+    percentOff: {
+      type: Number,
+      requierd: true,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+// Generate a slug from the product's name before saving
+ProductSchema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
 
 module.exports = mongoose.model("Product", ProductSchema);
